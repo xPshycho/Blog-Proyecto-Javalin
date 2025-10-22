@@ -1,0 +1,74 @@
+
+<!-- about.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sabores de Hoy - Sobre Nosotros</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/public/styles.css">
+</head>
+<body>
+<header class="py-3 mb-4 border-bottom">
+  <div class="container d-flex flex-wrap justify-content-between align-items-center">
+    <a href="/" class="d-flex align-items-center text-decoration-none">
+      <span class="fs-3 fw-bold">Sabores de Hoy</span>
+    </a>
+    <nav class="nav d-flex align-items-center">
+      <div th:if="${usuario != null}" class="d-flex align-items-center">
+        <!-- Dropdown de usuario -->
+        <div class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+            Bienvenido, <span th:text="${usuario.nombre}"></span>
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="userMenu">
+            <li><a class="dropdown-item" href="/profile">Perfil</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="/dashboard">Dashboard</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="/logout">Cerrar sesión</a></li>
+          </ul>
+        </div>
+        <!-- Icono redondo para la foto de perfil -->
+        <img src="/profile-photo" class="rounded-circle" style="width:40px; height:40px; object-fit: cover; margin-left: 10px;" alt="Foto de perfil">
+      </div>
+      <div th:if="${usuario == null}" class="d-flex">
+        <a class="nav-link me-3" href="/login">Iniciar sesión</a>
+        <a class="nav-link" href="/register">Registrarse</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <section class="text-center py-5">
+    <h1 class="mb-4">Acerca de Nosotros</h1>
+    <p class="lead">"Sabores de Hoy" es un blog dedicado a compartir experiencias gastronómicas, recetas,
+      y tendencias culinarias. Nuestra misión es conectar a los amantes de la cocina con contenidos de calidad y
+      una comunidad apasionada.</p>
+  </section>
+
+  <section class="row text-center">
+    <div class="col-md-4">
+      <h3>Nuestra Visión</h3>
+      <p>Ser el blog de referencia para todos aquellos que buscan inspiración en el mundo culinario.</p>
+    </div>
+    <div class="col-md-4">
+      <h3>Nuestros Valores</h3>
+      <p>Autenticidad, creatividad y pasión por la gastronomía.</p>
+    </div>
+    <div class="col-md-4">
+      <h3>Contacto</h3>
+      <p>📧 contacto@saboresdehoy.com</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>&copy; 2025 Sabores de Hoy. Todos los derechos reservados. <a href="/about">Sobre nosotros</a></p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

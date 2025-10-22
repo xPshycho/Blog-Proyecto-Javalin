@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${userToEdit != null} ? 'Editar Usuario' : 'Registro de Usuario'">Registro de Usuario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/public/register.css">
+</head>
+<body>
+<header class="py-3 mb-4 border-bottom">
+    <div class="container d-flex flex-wrap justify-content-between align-items-center">
+        <a href="/" class="d-flex align-items-center text-decoration-none">
+            <span class="fs-3 fw-bold">Sabores de Hoy</span>
+        </a>
+    </div>
+</header>
+
+<main>
+    <!-- La acción del formulario varía según se esté registrando o editando -->
+    <form class="form-signin" th:action="${userToEdit != null} ? @{/update-usuario} : @{/register}" method="post" enctype="multipart/form-data">
+    <h1 class="h3 mb-3 fw-normal" th:text="${userToEdit != null} ? 'Editar Usuario' : 'Registrarse'">Registrarse</h1>
+
+        <!-- Campo username: en modo edición se muestra readonly -->
+        <input type="text" class="form-control mb-3" name="username" placeholder="Usuario" required
+               th:value="${userToEdit != null ? userToEdit.username : ''}"
+               th:readonly="${userToEdit != null}" />
+
+        <!-- Campo Nombre Completo -->
+        <input type="text" class="form-control mb-3" name="nombre" placeholder="Nombre Completo" required
+               th:value="${userToEdit != null ? userToEdit.nombre : ''}" />
+
+        <!-- Campo contraseña:
+             - En modo registro es obligatorio.
+             - En modo edición se muestra para cambiar la contraseña (opcional) -->
+        <input type="password" class="form-control mb-3" name="password"
+               th:placeholder="${userToEdit != null ? 'Nueva Contraseña (opcional)' : 'Contraseña'}"
+               th:if="${userToEdit == null}" required />
+        <input type="password" class="form-control mb-3" name="password"
+               th:if="${userToEdit != null}" placeholder="Nueva Contraseña (opcional)" />
+
+        <!-- Campo para subir foto -->
+        <div class="mb-3">
+            <label for="foto" class="form-label">Subir foto de perfil</label>
+            <input type="file" class="form-control" id="foto" name="foto" accept="image/*">
+        </div>
+
+        <!-- Selector de roles (visible si el usuario logueado puede asignarlos) -->
+        <div th:if="${usuario != null and (usuario.autor or usuario.administrador)}">
+            <label>Selecciona los roles para el usuario:</label>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="roles" value="autor" id="rolAutor"
+                       th:checked="${userToEdit != null ? userToEdit.autor : false}" />
+                <label class="form-check-label" for="rolAutor">Autor</label>
+            </div>
+            <div class="form-check" th:if="${usuario.administrador}">
+                <input class="form-check-input" type="checkbox" name="roles" value="admin" id="rolAdmin"
+                       th:checked="${userToEdit != null ? userToEdit.administrador : false}" />
+                <label class="form-check-label" for="rolAdmin">Administrador</label>
+            </div>
+        </div>
+
+        <button class="w-100 btn btn-lg" type="submit"
+                th:text="${userToEdit != null} ? 'Actualizar Usuario' : 'Registrarse'">Registrarse</button>
+    </form>
+</main>
+
+<footer>
+    <p>&copy; 2025 Sabores de Hoy. Todos los derechos reservados. <a href="/about">Sobre nosotros</a></p>
+</footer>
+</body>
+</html>

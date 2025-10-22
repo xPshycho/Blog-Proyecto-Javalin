@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Artículos con etiquetas: <span th:text="${selectedTagsStr}"></span></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/public/styles.css">
+</head>
+<body>
+<header class="py-3 mb-4 border-bottom">
+    <div class="container d-flex flex-wrap justify-content-between align-items-center">
+        <a href="/" class="d-flex align-items-center text-decoration-none">
+            <span class="fs-3 fw-bold">Sabores de Hoy</span>
+        </a>
+        <nav class="nav d-flex align-items-center">
+            <div th:if="${usuario != null}" class="d-flex align-items-center">
+                <!-- Dropdown de usuario -->
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                        Bienvenido, <span th:text="${usuario.nombre}"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="userMenu">
+                        <li><a class="dropdown-item" href="/profile">Perfil</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/dashboard">Dashboard</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/logout">Cerrar sesión</a></li>
+                    </ul>
+                </div>
+                <!-- Icono redondo para la foto de perfil -->
+                <img src="/profile-photo" class="rounded-circle" style="width:40px; height:40px; object-fit: cover; margin-left: 10px;" alt="Foto de perfil">
+            </div>
+            <div th:if="${usuario == null}" class="d-flex">
+                <a class="nav-link me-3" href="/login">Iniciar sesión</a>
+                <a class="nav-link" href="/register">Registrarse</a>
+            </div>
+        </nav>
+    </div>
+</header>
+<main class="container">
+    <div class="row">
+        <!-- Columna izquierda: Artículos filtrados -->
+        <div class="col-md-9">
+            <h2>Artículos con etiquetas: <span th:text="${selectedTagsStr != '' ? selectedTagsStr : 'Todos'}"></span></h2>
+            <div th:if="${#lists.isEmpty(articulos)}">
+                <p>No se encontraron artículos asociados a las etiquetas seleccionadas.</p>
+            </div>
+            <div th:if="${!#lists.isEmpty(articulos)}">
+                <div th:each="articulo : ${articulos}">
+                    <article class="blog-post">
+                        <h3>
+                            <a th:href="@{/article(id=${articulo.id})}" th:text="${articulo.titulo}">Título del Artículo</a>
+                        </h3>
+                        <p class="text-muted" th:text="${#dates.format(articulo.fecha, 'dd/MM/yyyy')} + ' - ' + ${articulo.autor.nombre}"></p>
+                        <p th:text="${articulo.cuerpo.length() > 70 ? articulo.cuerpo.substring(0,70) + '...' : articulo.cuerpo}"></p>
+                        <div th:if="${articulo.etiquetaList != null and !articulo.etiquetaList.isEmpty()}">
+                            <p>
+                                <a th:each="et : ${articulo.etiquetaList}"
+                                   th:href="@{'/tag?names=' + ${(selectedTagsStr != null and selectedTagsStr != '') ? selectedTagsStr + ',' + et.etiqueta : et.etiqueta}}"
+                                   class="badge bg-secondary me-1 tag-item"
+                                   th:text="${et.etiqueta}"></a>
+                            </p>
+                        </div>
+                        <a th:href="@{/article(id=${articulo.id})}" class="btn btn-primary">Leer más</a>
+                    </article>
+                    <hr>
+                </div>
+            </div>
+            <!-- Paginación: Incluir 'names' en los enlaces -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                        <a class="page-link" th:href="@{/tag(names=${selectedTagsStr}, page=${currentPage > 1 ? currentPage - 1 : currentPage})}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item" th:each="pageNum : ${#numbers.sequence(1, totalPages)}" th:classappend="${pageNum == currentPage} ? 'active'">
+                        <a class="page-link" th:href="@{/tag(names=${selectedTagsStr}, page=${pageNum})}" th:text="${pageNum}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                        <a class="page-link" th:href="@{/tag(names=${selectedTagsStr}, page=${currentPage < totalPages ? currentPage + 1 : currentPage})}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <!-- Columna derecha: Sidebar de etiquetas -->
+        <div class="col-md-3">
+            <div id="tagSidebar">
+                <h5>Todas las Etiquetas</h5>
+                <div th:if="${allTags != null}">
+                    <div th:each="tag : ${allTags}" th:with="newNames=${(selectedTagsStr != null and selectedTagsStr != '') ? selectedTagsStr + ',' + tag.etiqueta : tag.etiqueta}">
+                        <a th:href="@{/tag(names=${newNames})}" class="tag-item" th:data-tag="${tag.etiqueta}" th:text="${tag.etiqueta}"></a>
+                    </div>
+                </div>
+            </div>
+            <!-- Contenedor para etiquetas seleccionadas con botón "Limpiar selección" -->
+            <div id="selectedTags">
+                <h6>Etiquetas seleccionadas:</h6>
+                <div th:if="${selectedTags != null and !#lists.isEmpty(selectedTags)}">
+                    <span th:each="selTag : ${selectedTags}" class="selected-tag" th:attr="data-tag=${selTag}" th:text="${selTag}"></span>
+                    <br>
+                    <a class="btn btn-sm btn-outline-secondary mt-2" href="/tag">Limpiar selección</a>
+                </div>
+                <div th:if="${selectedTags == null or #lists.isEmpty(selectedTags)}">
+                    <p>No hay etiquetas seleccionadas.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<footer>
+    <p>&copy; 2025 Sabores de Hoy. Todos los derechos reservados. <a href="/about">Sobre nosotros</a></p>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Manejar la eliminación dinámica de etiquetas seleccionadas con la "×"
+    document.addEventListener("DOMContentLoaded", function() {
+        const selectedTagsContainer = document.getElementById("selectedTags");
+        selectedTagsContainer.querySelectorAll(".selected-tag .remove-tag").forEach(function(btn) {
+            btn.addEventListener("click", function(e) {
+                e.stopPropagation();
+                btn.parentElement.remove();
+                // Reconstruir la cadena de etiquetas restantes y redirigir
+                const remaining = Array.from(document.querySelectorAll("#selectedTags .selected-tag")).map(el => el.getAttribute("data-tag"));
+                let url = "/tag";
+                if(remaining.length > 0){
+                    url += "?names=" + encodeURIComponent(remaining.join(","));
+                }
+                window.location.href = url;
+            });
+        });
+    });
+</script>
+</body>
+</html>

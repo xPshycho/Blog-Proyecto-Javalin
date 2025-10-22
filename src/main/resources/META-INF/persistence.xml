@@ -1,0 +1,32 @@
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             version="3.0"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
+    <persistence-unit name="AjaxPU" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <!-- Lista de entidades del blog -->
+        <class>edu.pucmm.eict.modelos.Articulo</class>
+        <class>edu.pucmm.eict.modelos.Comentario</class>
+        <class>edu.pucmm.eict.modelos.Etiqueta</class>
+        <class>edu.pucmm.eict.modelos.Usuario</class>
+        <class>edu.pucmm.eict.modelos.Chat</class>
+        <class>edu.pucmm.eict.modelos.Mensaje</class>
+
+        <properties>
+            <!-- Configuración de la conexión con H2 en modo servidor -->
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/~/Ajaxblog" />
+            <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver" />
+            <property name="jakarta.persistence.jdbc.user" value="sa" />
+            <property name="jakarta.persistence.jdbc.password" value="" />
+            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+
+            <!-- Permitir que Hibernate maneje la creación/actualización de tablas -->
+            <property name="jakarta.persistence.schema-generation.database.action" value="update"/>
+
+            <!-- Mostrar las consultas SQL en la consola -->
+            <property name="hibernate.show_sql" value="false"/>
+            <property name="hibernate.format_sql" value="false"/>
+        </properties>
+    </persistence-unit>
+</persistence>

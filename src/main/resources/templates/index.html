@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sabores de Hoy - Blog</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/public/styles.css">
+</head>
+<body>
+<header class="py-3 mb-4 border-bottom">
+    <div class="container d-flex flex-wrap justify-content-between align-items-center">
+        <a href="/" class="d-flex align-items-center text-decoration-none">
+            <span class="fs-3 fw-bold">Sabores de Hoy</span>
+        </a>
+        <nav class="nav d-flex align-items-center">
+            <div th:if="${usuario != null}" class="d-flex align-items-center">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="userMenu"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        Bienvenido, <span th:text="${usuario.nombre}"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="userMenu">
+                        <li><a class="dropdown-item" href="/profile">Perfil</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/dashboard">Dashboard</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/logout">Cerrar sesión</a></li>
+                    </ul>
+                </div>
+                <img src="/profile-photo" class="rounded-circle"
+                     style="width:40px; height:40px; object-fit: cover; margin-left: 10px;" alt="Foto de perfil">
+            </div>
+            <div th:if="${usuario == null}" class="d-flex">
+                <a class="nav-link me-3" href="/login">Iniciar sesión</a>
+                <a class="nav-link" href="/register">Registrarse</a>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<main class="container">
+    <!-- Sección de artículos -->
+    <div class="row">
+        <!-- Columna izquierda: Lista de artículos -->
+        <div class="col-md-9">
+            <h2 class="pb-4 mb-4 border-bottom">Últimos Artículos</h2>
+            <div id="articlesContainer">
+                <div th:if="${#lists.isEmpty(articulos)}">
+                    <p>No hay artículos disponibles.</p>
+                </div>
+                <div th:if="${!#lists.isEmpty(articulos)}">
+                    <div th:each="articulo : ${articulos}">
+                        <article class="blog-post">
+                            <h3>
+                                <a th:href="@{/article(id=${articulo.id})}" th:text="${articulo.titulo}">Título del Artículo</a>
+                            </h3>
+                            <p class="text-muted"
+                               th:text="${#dates.format(articulo.fecha, 'dd/MM/yyyy')} + ' - ' + ${articulo.autor.nombre}"></p>
+                            <p th:text="${articulo.cuerpo.length() > 70 ? articulo.cuerpo.substring(0,70) + '...' : articulo.cuerpo}">
+                                Resumen...</p>
+                            <div th:if="${articulo.etiquetaList != null and !articulo.etiquetaList.isEmpty()}">
+                                <p>
+                                    <a th:each="et : ${articulo.etiquetaList}"
+                                       th:href="@{'/tag?name=' + ${et.etiqueta}}"
+                                       class="badge bg-secondary me-1" th:text="${et.etiqueta}">Etiqueta</a>
+                                </p>
+                            </div>
+                            <a th:href="@{/article(id=${articulo.id})}" class="btn btn-primary">Leer más</a>
+                        </article>
+                        <hr>
+                    </div>
+                </div>
+            </div>
+            <!-- Paginación -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                        <a class="page-link" th:href="@{/(page=${(currentPage > 1) ? (currentPage - 1) : currentPage})}"
+                           aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item" th:each="pageNum : ${#numbers.sequence(1, totalPages)}"
+                        th:classappend="${pageNum == currentPage} ? 'active'">
+                        <a class="page-link" th:href="@{/(page=${pageNum})}" th:text="${pageNum}">1</a>
+                    </li>
+                    <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/(page=${(currentPage < totalPages) ? (currentPage + 1) : currentPage})}"
+                           aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <!-- Columna derecha: Sidebar de etiquetas -->
+        <div class="col-md-3">
+            <div id="tagSidebar">
+                <h5>Todas las Etiquetas</h5>
+                <div th:if="${allTags != null}">
+                    <div th:each="tag : ${allTags}">
+                        <a th:href="@{/tag(name=${tag.etiqueta})}" class="tag-item"
+                           th:text="${tag.etiqueta}">Etiqueta</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Botón flotante para iniciar chat general (soporte) -->
+<button type="button" class="btn btn-primary chat-float-btn" id="openChatBtn">
+    Chat
+</button>
+
+<!-- Modal para el chat -->
+<div class="modal fade" id="chatModal" data-bs-backdrop="false" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+    <div class="modal-dialog" id="chatModalDialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="chatModalLabel">Chat en Vivo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body" id="chatModalBody">
+                <p>Cargando...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="text-center py-3 mt-4 border-top">
+    <p>&copy; 2025 Sabores de Hoy. Todos los derechos reservados. <a href="/about">Sobre nosotros</a></p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // --- Configuración de la Paginación de Artículos ---
+        const pageSize = 5; // Debe coincidir con el tamaño definido en el API
+
+        function attachPaginationListeners() {
+            document.querySelectorAll('.pagination a').forEach(link => {
+                link.addEventListener('click', onPaginationClick);
+            });
+        }
+
+        function onPaginationClick(e) {
+            e.preventDefault();
+            const url = new URL(this.href, window.location.origin);
+            const page = parseInt(url.searchParams.get('page'));
+            fetchArticles(page);
+        }
+
+        function fetchArticles(page) {
+            fetch('/api/articles?page=' + page)
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById("articlesContainer");
+                    container.innerHTML = ""; // Limpia el contenedor previo
+
+                    if (data.length === 0) {
+                        container.innerHTML = "<p>No hay artículos disponibles.</p>";
+                    } else {
+                        data.forEach(articulo => {
+                            const articleHtml = `
+                  <article class="blog-post">
+                    <h3>
+                      <a href="/article?id=${articulo.id}">${articulo.titulo}</a>
+                    </h3>
+                    <p class="text-muted">
+                      ${new Date(articulo.fecha).toLocaleDateString()} - ${articulo.autor.nombre}
+                    </p>
+                    <p>
+                      ${articulo.cuerpo.length > 70 ? articulo.cuerpo.substring(0, 70) + '...' : articulo.cuerpo}
+                    </p>
+                    <a href="/article?id=${articulo.id}" class="btn btn-primary">Leer más</a>
+                  </article>
+                  <hr>
+                `;
+                            container.innerHTML += articleHtml;
+                        });
+                    }
+                    updatePagination(page);
+                })
+                .catch(error => console.error('Error en la petición AJAX:', error));
+        }
+
+        function updatePagination(currentPage) {
+            fetch('/api/articles/count')
+                .then(response => response.json())
+                .then(totalCount => {
+                    const totalPages = Math.ceil(totalCount / pageSize);
+                    const paginationUl = document.querySelector('.pagination');
+                    let html = '';
+
+                    // Botón "Anterior"
+                    const prevDisabled = (currentPage === 1) ? 'disabled' : '';
+                    const prevPage = (currentPage > 1) ? currentPage - 1 : 1;
+                    html += `<li class="page-item ${prevDisabled}">
+                      <a class="page-link" href="/?page=${prevPage}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                      </a>
+                    </li>`;
+
+                    // Números de página
+                    for (let i = 1; i <= totalPages; i++) {
+                        const active = (i === currentPage) ? 'active' : '';
+                        html += `<li class="page-item ${active}">
+                        <a class="page-link" href="/?page=${i}">${i}</a>
+                      </li>`;
+                    }
+
+                    // Botón "Siguiente"
+                    const nextDisabled = (currentPage === totalPages) ? 'disabled' : '';
+                    const nextPage = (currentPage < totalPages) ? currentPage + 1 : totalPages;
+                    html += `<li class="page-item ${nextDisabled}">
+                      <a class="page-link" href="/?page=${nextPage}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                      </a>
+                    </li>`;
+
+                    paginationUl.innerHTML = html;
+                    attachPaginationListeners();
+                })
+                .catch(error => console.error('Error al obtener el total de artículos:', error));
+        }
+
+        attachPaginationListeners();
+
+        // --- Configuración del Chat General ---
+        // Definimos identificadores fijos para el chat de soporte
+        const supportArticleId = "support"; // identificador genérico para soporte
+        const supportAuthorId = "admin";      // identificador del admin o autor de soporte
+        const localStorageKey = `chat-${supportArticleId}`;
+
+        const openChatBtn = document.getElementById("openChatBtn");
+        const chatModalEl = document.getElementById("chatModal");
+        const chatModal = new bootstrap.Modal(chatModalEl);
+
+        function loadChatContent() {
+            const storedChatId = localStorage.getItem(localStorageKey);
+            let url = "";
+            if (!storedChatId || storedChatId.trim() === "") {
+                // No hay chat iniciado, cargar el formulario
+                url = `/chat-form?articleId=${supportArticleId}&authorId=${supportAuthorId}`;
+            } else {
+                // Si ya existe un chat, cargar live-chat para mostrar el historial
+                url = `/live-chat?articleId=${supportArticleId}&authorId=${supportAuthorId}&chatId=${storedChatId}`;
+            }
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Error al cargar el contenido del chat");
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    document.getElementById("chatModalBody").innerHTML = html;
+                    if (url.includes("chat-form")) {
+                        window.chatModule.setupChatForm(supportArticleId, supportAuthorId);
+                    } else {
+                        // Se inicializa el chat y se establece la conexión WebSocket (rol "user")
+                        window.chatModule.initializeChat(storedChatId, "user", supportAuthorId, supportArticleId);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error al cargar el chat:", error);
+                    document.getElementById("chatModalBody").innerHTML = "<p>Error al cargar el chat en vivo.</p>";
+                });
+        }
+
+        openChatBtn.addEventListener("click", function () {
+            openChatBtn.style.display = 'none';
+            chatModal.show();
+            loadChatContent();
+        });
+
+        chatModalEl.addEventListener('hidden.bs.modal', () => {
+            openChatBtn.style.display = 'block';
+        });
+    });
+</script>
+<script src="/js/chat.js" defer></script>
+</body>
+</html>

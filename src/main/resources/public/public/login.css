@@ -1,0 +1,87 @@
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f9;
+    color: #34495e;
+}
+
+header, footer {
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+header .fs-3 {
+    color: #ecf0f1;
+    text-decoration: none;
+}
+
+header .fs-3:hover {
+    color: #f39c12;
+}
+
+main {
+    flex: 1 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.form-signin {
+    max-width: 360px;
+    width: 100%;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-signin h1 {
+    font-size: 2rem;
+    color: #34495e;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-signin .form-control {
+    height: auto;
+    padding: 10px;
+    font-size: 1rem;
+}
+
+.form-signin button {
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 8px;
+    background-color: #e74c3c;
+    border: none;
+    color: #fff;
+    transition: background-color 0.3s ease;
+}
+
+.form-signin button:hover {
+    background-color: #f39c12;
+}
+
+footer {
+    text-align: center;
+    padding: 1rem;
+    margin-top: 2rem;
+    border-top: 1px solid #34495e;
+    flex-shrink: 0;
+}
+
+footer a {
+    color: #ecf0f1;
+    text-decoration: underline;
+}
+
+footer a:hover {
+    color: #f39c12;
+}

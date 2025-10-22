@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chats Pendientes - Panel de Control</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/public/dashboard.css">
+</head>
+<body>
+<header class="py-3 mb-4 border-bottom">
+    <div class="container d-flex flex-wrap justify-content-between align-items-center">
+        <a href="/" class="d-flex align-items-center text-decoration-none">
+            <span class="fs-3 fw-bold">Sabores de Hoy</span>
+        </a>
+        <nav class="nav d-flex align-items-center">
+            <div th:if="${usuario != null}" class="d-flex align-items-center">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                        Bienvenido, <span th:text="${usuario.nombre}"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="userMenu">
+                        <li><a class="dropdown-item" href="/profile">Perfil</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/dashboard">Dashboard</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/logout">Cerrar sesión</a></li>
+                    </ul>
+                </div>
+                <img src="/profile-photo" class="rounded-circle" style="width:40px; height:40px; object-fit: cover; margin-left: 10px;" alt="Foto de perfil">
+            </div>
+            <div th:if="${usuario == null}" class="d-flex">
+                <a class="nav-link me-3" href="/login">Iniciar sesión</a>
+                <a class="nav-link" href="/register">Registrarse</a>
+            </div>
+        </nav>
+    </div>
+</header>
+<main class="container">
+    <h2 class="mb-4">Chats Pendientes</h2>
+    <div th:if="${#lists.isEmpty(chats)}">
+        <p>No hay chats pendientes.</p>
+    </div>
+    <div th:if="${!#lists.isEmpty(chats)}">
+        <table class="table table-striped" id="chatsTable">
+            <thead>
+            <tr>
+                <th>Nombre Completo</th>
+                <th>Correo</th>
+                <th>Teléfono</th>
+                <th>Razón de Consulta</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Se genera inicialmente con Thymeleaf, luego se actualizará vía SharedWorker -->
+            <tr th:each="chat : ${chats}" data-chat-id="[[${chat.id}]]">
+                <td th:text="${chat.nombreCompleto}">Nombre Completo</td>
+                <td th:text="${chat.correo}">Correo</td>
+                <td th:text="${chat.telefono}">Teléfono</td>
+                <td th:text="${chat.razonConsulta}">Razón de consulta</td>
+                <td>
+                    <a th:href="@{/responder-chat(id=${chat.id})}" class="btn btn-primary btn-sm">Responder</a>
+                    <a th:href="@{/cerrar-chat(id=${chat.id})}" class="btn btn-danger btn-sm">Cerrar</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<footer class="text-center py-3 mt-4 border-top">
+    <p>&copy; 2025 Sabores de Hoy. Todos los derechos reservados. <a href="/about">Sobre nosotros</a></p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Conectamos al SharedWorker que centraliza la conexión al WebSocket /dashboard-ws.
+    if (window.SharedWorker) {
+        const worker = new SharedWorker('/js/ws-shared-worker.js');
+        worker.port.start();
+
+        // Manejamos los mensajes que llegan del SharedWorker.
+        worker.port.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            if (data.type === "ACTIVE_CHATS" && data.chats) {
+                // Se recibió la lista inicial de chats activos.
+                data.chats.forEach(chat => {
+                    agregarChatEnDashboard(chat);
+                });
+            } else if (data.type === "NEW_CHAT" && data.chat) {
+                // Se recibe notificación de un nuevo chat.
+                agregarChatEnDashboard(data.chat);
+            } else if (data.type === "PONG") {
+                console.log("Recibido PONG del SharedWorker");
+            }
+        };
+
+        // Enviar un PING cada 30 segundos para mantener viva la conexión.
+        setInterval(function() {
+            worker.port.postMessage(JSON.stringify({ type: "PING" }));
+        }, 30000);
+
+        // Función para agregar un chat a la tabla (si aún no está agregado).
+        function agregarChatEnDashboard(chat) {
+            const tableBody = document.querySelector("#chatsTable tbody");
+            if (tableBody && !document.querySelector(`tr[data-chat-id="${chat.id}"]`)) {
+                const row = document.createElement("tr");
+                row.setAttribute("data-chat-id", chat.id);
+                row.innerHTML = `
+            <td>${chat.nombreCompleto}</td>
+            <td>${chat.correo}</td>
+            <td>${chat.telefono}</td>
+            <td>${chat.razonConsulta}</td>
+            <td>
+              <a href="/responder-chat?id=${chat.id}" class="btn btn-primary btn-sm">Responder</a>
+              <a th:href="@{/borrar-chat(id=${chat.id})}" class="btn btn-danger btn-sm">Cerrar</a>
+            </td>
+          `;
+                tableBody.appendChild(row);
+            }
+        }
+    } else {
+        console.error("El navegador no soporta SharedWorker. Se usará conexión propia y se perderá la persistencia entre recargas.");
+    }
+</script>
+</body>
+</html>

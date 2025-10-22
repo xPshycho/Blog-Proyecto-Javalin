@@ -1,0 +1,8 @@
+<div>
+  <div th:each="msg : ${chat.mensajes}">
+    <div th:class="${msg.senderId == 'user'} ? 'user-message' : 'author-message'">
+      <div class="message-content" th:text="${msg.mensaje}">Mensaje</div>
+      <div class="message-time" th:text="${#temporals.format(msg.timestamp, 'HH:mm')}">Hora</div>
+    </div>
+  </div>
+</div>

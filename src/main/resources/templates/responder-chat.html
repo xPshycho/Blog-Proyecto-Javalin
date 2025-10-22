@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Responder Chat</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/public/styles.css">
+</head>
+<body>
+<div class="container">
+    <h3>Responder Chat a <span th:text="${chat.nombreCompleto}">Usuario</span></h3>
+    <div id="chatMessages" style="height:300px; overflow-y:auto; border:1px solid #ddd; padding:10px;">
+        <div th:each="msg : ${chat.mensajes}">
+            <div th:class="${msg.senderId == 'user'} ? 'user-message' : 'author-message'">
+                <div class="message-content" th:text="${msg.mensaje}">Mensaje</div>
+                <div class="message-time" th:text="${#temporals.format(msg.timestamp, 'HH:mm')}">Hora</div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-2">
+        <input type="text" id="messageInput" placeholder="Escribe tu respuesta..." class="form-control">
+        <button id="sendMessageBtn" class="btn btn-primary mt-2">Enviar</button>
+    </div>
+</div>
+
+<!-- Asignar variables globales sin redeclararlas -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    window.chatId = /*[[${chat.id}]]*/ 'defaultChatId';
+    window.authorId = /*[[${chat.authorId}]]*/ 'author';
+    window.articleId = /*[[${chat.articleId}]]*/ 'article';
+    window.rol = /*[[${rol}]]*/ 'admin';
+    /*]]>*/
+</script>
+
+<script src="/js/chat.js" defer></script>
+
+<script>
+    // Inicia la conexión WebSocket usando el rol del usuario (admin o author)
+    document.addEventListener("DOMContentLoaded", function() {
+        console.log("Iniciando conexión WebSocket para responder-chat con chatId:", window.chatId, "rol:", window.rol);
+        initializeChat(window.chatId, window.rol, window.authorId, window.articleId);
+    });
+</script>
+</body>
+</html>

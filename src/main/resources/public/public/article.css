@@ -1,0 +1,198 @@
+/* Estilos generales */
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    font-family: 'Arial', sans-serif;
+    background-color: #ffffff;
+    color: #000000;
+}
+
+header, footer {
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+header .nav .nav-link, footer a, header .fs-3 {
+    color: #ecf0f1;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+header .nav .nav-link:hover, footer a:hover, header .fs-3:hover {
+    color: #f39c12;
+    text-decoration: underline;
+}
+
+h2 {
+    color: #34495e;
+}
+
+main {
+    flex: 1 0 auto;
+    padding: 20px;
+}
+
+.blog-post, article {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.blog-post h3 a, article h1 {
+    color: #e74c3c;
+    text-decoration: none;
+}
+
+.blog-post h3 a:hover, article h1:hover {
+    color: #c0392b;
+    text-decoration: underline;
+}
+
+.btn-primary, button.btn-primary, .btn-back {
+    background-color: #e74c3c;
+    border: none;
+    transition: background-color 0.3s ease;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.btn-primary:hover, button.btn-primary:hover, .btn-back:hover {
+    background-color: #f39c12;
+}
+
+.btn-back {
+    margin-top: 20px;
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
+/* Estilos para comentarios */
+.comment {
+    background-color: #ffffff;
+    border-left: 4px solid #e74c3c;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.comment-author {
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.comment-body p {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* Estilos para el botón de opciones (3 puntos) */
+.comment-options {
+    position: relative;
+}
+
+.comment-options-btn {
+    background: none;
+    border: none;
+    color: #6c757d;
+    font-size: 1.2rem;
+    padding: 0;
+    cursor: pointer;
+}
+
+.comment-options-btn:hover {
+    color: #c0392b;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 1rem;
+    margin-top: 2rem;
+    border-top: 1px solid #34495e;
+    flex-shrink: 0;
+}
+
+footer a {
+    color: #ecf0f1;
+    text-decoration: underline;
+}
+
+footer a:hover {
+    color: #f39c12;
+}
+
+.chat-float-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 16px;
+    z-index: 9999;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+.chat-float-btn:hover {
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
+}
+
+#chatModalDialog {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    margin: 0;
+    width: 350px;
+    max-width: 90vw;
+    transform: none;
+    z-index: 10000;
+    transition: transform 0.3s ease-out;
+}
+
+.modal-backdrop.show {
+    opacity: 0;
+}
+
+#chatModal .modal-content {
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    header .container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    header .nav {
+        margin-top: 1rem;
+    }
+    .col-md-8 {
+        margin-top: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .blog-post h3, article h1 {
+        font-size: 1.2rem;
+    }
+    .blog-post p, article p {
+        font-size: 0.9rem;
+    }
+}

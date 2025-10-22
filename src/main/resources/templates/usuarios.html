@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Usuarios - Panel de Control</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/public/dashboard.css">
+</head>
+<body>
+<header class="py-3 mb-4 border-bottom">
+    <div class="container d-flex flex-wrap justify-content-between align-items-center">
+        <a href="/" class="d-flex align-items-center text-decoration-none">
+            <span class="fs-3 fw-bold">Sabores de Hoy</span>
+        </a>
+        <nav class="nav d-flex align-items-center">
+            <div th:if="${usuario != null}" class="d-flex align-items-center">
+                <!-- Dropdown de usuario -->
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                        Bienvenido, <span th:text="${usuario.nombre}"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="userMenu">
+                        <li><a class="dropdown-item" href="/profile">Perfil</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/dashboard">Dashboard</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/logout">Cerrar sesión</a></li>
+                    </ul>
+                </div>
+                <!-- Icono redondo para la foto de perfil -->
+                <img src="/profile-photo" class="rounded-circle" style="width:40px; height:40px; object-fit: cover; margin-left: 10px;" alt="Foto de perfil">
+            </div>
+            <div th:if="${usuario == null}" class="d-flex">
+                <a class="nav-link me-3" href="/login">Iniciar sesión</a>
+                <a class="nav-link" href="/register">Registrarse</a>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<div class="container">
+    <h1 class="mb-4">Panel de Usuarios</h1>
+
+    <div th:if="${error != null}" class="alert alert-danger" th:text="${error}"></div>
+
+    <!-- Botón para crear un nuevo usuario (solo visible para administradores) -->
+    <div class="mb-3" th:if="${usuario != null and usuario.administrador}">
+        <a href="/register" class="btn btn-success">Crear Nuevo Usuario</a>
+        <a href="/chats" class="btn btn-info">Chats Pendientes</a>
+    </div>
+
+    <!-- Tabla de usuarios -->
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Username</th>
+                <th>Nombre Completo</th>
+                <th>Roles</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="userItem : ${usuarios}">
+                <td th:text="${userItem.username}">Username</td>
+                <td th:text="${userItem.nombre}">Nombre</td>
+                <td>
+                    <span th:if="${userItem.administrador}" class="badge bg-primary">Administrador</span>
+                    <span th:if="${userItem.autor}" class="badge bg-success">Autor</span>
+                    <span th:if="${!userItem.administrador and !userItem.autor}" class="badge bg-secondary">Usuario</span>
+                </td>
+                <td>
+                    <!-- Enlace para editar. Se asume que tendrás un formulario de edición en /form-usuario -->
+                    <a th:href="@{/form-usuario(username=${userItem.username})}" class="btn btn-warning btn-sm">Editar</a>
+                    <!-- Botón para borrar que abre un modal de confirmación -->
+                    <button class="btn btn-danger btn-sm"
+                            th:attr="data-username=${userItem.username}"
+                            onclick="openDeleteModal(this)">Borrar</button>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(usuarios)}">
+                <td colspan="4" class="text-center">No hay usuarios para mostrar.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<footer class="text-center py-3 mt-4 border-top">
+    <div class="container">
+        <p>&copy; 2025 Sabores de Hoy. Todos los derechos reservados. <a href="/about">Sobre nosotros</a></p>
+    </div>
+</footer>
+
+<!-- Modal de confirmación de eliminación -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="deleteModalLabel">Confirmar eliminación</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que deseas borrar este usuario?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <a id="confirmDeleteBtn" href="#" class="btn btn-danger">Borrar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript: Bootstrap y función para abrir el modal -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function openDeleteModal(button) {
+        var username = button.getAttribute("data-username");
+        // Configura el enlace del botón de confirmación, asumiendo que tendrás un endpoint /delete-usuario
+        document.getElementById("confirmDeleteBtn").setAttribute("href", "/delete-usuario?username=" + username);
+        var deleteModal = new bootstrap.Modal(document.getElementById("deleteModal"));
+        deleteModal.show();
+    }
+</script>
+</body>
+</html>

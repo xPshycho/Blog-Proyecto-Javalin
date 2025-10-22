@@ -1,0 +1,112 @@
+/* dashboard.css */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+header, footer {
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+header .nav .nav-link, footer a {
+    color: #ecf0f1;
+    font-weight: bold;
+}
+
+header .nav .nav-link:hover, footer a:hover {
+    color: #f39c12;
+    text-decoration: underline;
+}
+
+header .fs-3 {
+    color: #ecf0f1;
+}
+
+header .fs-3:hover {
+    color: #f39c12;
+    text-decoration: none;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    padding: 20px;
+    flex: 1;
+}
+
+h1, h2 {
+    color: #34495e;
+    margin-bottom: 20px;
+}
+
+.table {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.table th, .table td {
+    vertical-align: middle;
+}
+
+.btn-primary {
+    background-color: #e74c3c;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #c0392b;
+}
+
+.btn-success {
+    background-color: #27ae60;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.btn-success:hover {
+    background-color: #1e8449;
+}
+
+footer {
+    text-align: center;
+    padding: 1rem;
+    margin-top: 2rem;
+    border-top: 1px solid #34495e;
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    header .container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    header .nav {
+        margin-top: 1rem;
+    }
+
+    .col-md-8 {
+        margin-top: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .blog-post h3 {
+        font-size: 1.2rem;
+    }
+
+    .blog-post p {
+        font-size: 0.9rem;
+    }
+}
