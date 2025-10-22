@@ -1,4 +1,4 @@
-# Practica 5 - Aplicación Web con Javalin
+# Aplicación Web con Javalin
 
 Este proyecto es una aplicación web desarrollada en Java utilizando el framework Javalin para el backend, Thymeleaf para las vistas, y una base de datos H2 embebida. Forma parte de las prácticas de Programación Web en el curso de Ingeniería en Computación y Telecomunicaciones (EICT) de la Pontificia Universidad Católica Madre y Maestra (PUCMM).
 
